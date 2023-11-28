@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Obat {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  kategori       KategoriObat @relation(fields: [kategoriObatId], references: [id])
+  kategoriObatId Int          @unique
+
+  @@map(name: "obat")
+}
+
+model KategoriObat {
+  id   Int    @id @default(autoincrement())
+  name String
+  Obat Obat[]
+
+  @@map(name: "kategori_obat")
+}
+
+model Penyakit {
+  id       Int    @id @default(autoincrement())
+  name     String
+  category String
+
+  @@map(name: "penyakit")
+}
+
+model Pasien {
+  id            Int             @id @default(autoincrement())
+  email         String          @unique
+  name          String
+  password      String
+  medialRecords MedicalRecord[]
+
+  @@map(name: "pasien")
+}
+
+model Dokter {
+  id             Int             @id @default(autoincrement())
+  email          String          @unique
+  name           String
+  password       String
+  medicalRecords MedicalRecord[]
+
+  @@map(name: "dokter")
+}
+
+enum Role {
+  DOKTER
+  PASIEN
+}
+
+model MedicalRecord {
+  id       Int    @id @default(autoincrement())
+  pasien   Pasien @relation(fields: [pasienId], references: [id])
+  dokter   Dokter @relation(fields: [dokterId], references: [id])
+  dokterId Int
+  pasienId Int
+
+  @@map(name: "medical_record")
+}

@@ -12,9 +12,6 @@ export class ObatController {
   @Get()
   async hello() {
     const res = await this.obatService.getHello();
-    return this.responseUtil.response(
-      { responseMessage: 'Hellooo' },
-      { data: res },
-    );
+    return this.responseUtil.response({ message: 'Obat' }, { data: res });
   }
 }

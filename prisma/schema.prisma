@@ -11,13 +11,24 @@ datasource db {
 }
 
 model Obat {
-  id   Int    @id @default(autoincrement())
-  name String
-
+  id             Int          @id @default(autoincrement())
+  name           String
   kategori       KategoriObat @relation(fields: [kategoriObatId], references: [id])
   kategoriObatId Int          @unique
+  recordObat     RecordObat[]
 
   @@map(name: "obat")
+}
+
+model RecordObat {
+  obat           Obat          @relation(fields: [obatId], references: [id])
+  dosis          String
+  obatId         Int
+  recordId       Int
+  medicineRecord MedicalRecord @relation(fields: [recordId], references: [id])
+
+  @@id([recordId, obatId])
+  @@map(name: "record_obat")
 }
 
 model KategoriObat {
@@ -29,31 +40,23 @@ model KategoriObat {
 }
 
 model Penyakit {
-  id       Int    @id @default(autoincrement())
-  name     String
-  category String
+  id            Int             @id @default(autoincrement())
+  name          String
+  category      String
+  MedicalRecord MedicalRecord[]
 
   @@map(name: "penyakit")
 }
 
-model Pasien {
+model User {
   id            Int             @id @default(autoincrement())
   email         String          @unique
   name          String
   password      String
   medialRecords MedicalRecord[]
+  role          Role
 
-  @@map(name: "pasien")
-}
-
-model Dokter {
-  id             Int             @id @default(autoincrement())
-  email          String          @unique
-  name           String
-  password       String
-  medicalRecords MedicalRecord[]
-
-  @@map(name: "dokter")
+  @@map(name: "user")
 }
 
 enum Role {
@@ -62,11 +65,15 @@ enum Role {
 }
 
 model MedicalRecord {
-  id       Int    @id @default(autoincrement())
-  pasien   Pasien @relation(fields: [pasienId], references: [id])
-  dokter   Dokter @relation(fields: [dokterId], references: [id])
-  dokterId Int
-  pasienId Int
+  id          Int          @id @default(autoincrement())
+  pasien      User         @relation(fields: [pasienId], references: [id])
+  dokterId    Int
+  pasienId    Int
+  isVerified  Boolean
+  description String
+  recordObat  RecordObat[]
+  penyakit    Penyakit     @relation(fields: [penyakitId], references: [id])
+  penyakitId  Int
 
   @@map(name: "medical_record")
 }

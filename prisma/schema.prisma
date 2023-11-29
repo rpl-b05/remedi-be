@@ -69,7 +69,7 @@ model MedicalRecord {
   pasien      User         @relation(fields: [pasienId], references: [id])
   dokterId    Int
   pasienId    Int
-  isVerified  Boolean
+  isVerified  Boolean     
   description String
   recordObat  RecordObat[]
   penyakit    Penyakit     @relation(fields: [penyakitId], references: [id])

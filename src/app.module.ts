@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ObatModule } from './obat/obat.module';
 import { CommonModule } from './common/common.module';
 import { KategoriObatModule } from './kategori-obat/kategori-obat.module';
+import { RecordsModule } from './records/records.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { KategoriObatModule } from './kategori-obat/kategori-obat.module';
     CommonModule,
     ObatModule,
     KategoriObatModule,
+    RecordsModule
   ],
   controllers: [AppController],
   providers: [AppService],

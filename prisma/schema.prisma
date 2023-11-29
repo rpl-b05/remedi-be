@@ -28,6 +28,7 @@ model RecordObat {
   medicineRecord MedicalRecord @relation(fields: [recordId], references: [id])
 
   @@id([recordId, obatId])
+  @@map(name: "record_obat")
 }
 
 model KategoriObat {

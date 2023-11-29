@@ -38,6 +38,7 @@ export class ObatController {
     );
   }
 
+  @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() request: CreateObatDto) {
     const obat = await this.obatService.createObat(request);

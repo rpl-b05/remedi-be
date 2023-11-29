@@ -5,9 +5,10 @@ import { ConfigModule } from '@nestjs/config';
 import { ObatModule } from './obat/obat.module';
 import { CommonModule } from './common/common.module';
 import { KategoriObatModule } from './kategori-obat/kategori-obat.module';
-import { AuthModule } from './auth/auth.module';
-import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
+import { AuthModule } from './auth/auth.module';
+import { RecordModule } from './record/record.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { JwtModule } from '@nestjs/jwt';
     CommonModule,
     ObatModule,
     KategoriObatModule,
+    RecordModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -6,6 +6,7 @@ import { ObatModule } from './obat/obat.module';
 import { CommonModule } from './common/common.module';
 import { KategoriObatModule } from './kategori-obat/kategori-obat.module';
 import { RecordModule } from './record/record.module';
+import { PenyakitModule } from './penyakit/penyakit.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { RecordModule } from './record/record.module';
     ObatModule,
     KategoriObatModule,
     RecordModule,
+    PenyakitModule,
   ],
   controllers: [AppController],
   providers: [AppService],

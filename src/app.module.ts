@@ -9,6 +9,9 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { AuthModule } from './auth/auth.module';
 import { RecordModule } from './record/record.module';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { AuthGuard } from './auth/auth.guard';
 
 @Module({
   imports: [
@@ -16,8 +19,8 @@ import { RecordModule } from './record/record.module';
     AuthModule,
     PassportModule,
     JwtModule.register({
-      secret: "remedisukses",
-      signOptions: { expiresIn: '1h' },
+      secret: process.env.JWR_SECRET,
+      signOptions: { expiresIn: process.env.JWT_EXPIRY as string },
     }),
     CommonModule,
     ObatModule,
@@ -25,6 +28,16 @@ import { RecordModule } from './record/record.module';
     RecordModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
+  ],
 })
 export class AppModule {}

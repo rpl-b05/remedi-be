@@ -3,13 +3,11 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { LoginDTO } from './dto/login.dto';
-import { IAuthenticate } from './interface/user.interface';
+import { LoginDTO } from './DTO/login.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { sign } from 'jsonwebtoken';
-import { RegisterDTO } from './dto/register.dto';
-import { User } from '@prisma/client';
+import { RegisterDTO } from './DTO/register.dto';
 
 @Injectable()
 export class AuthService {
@@ -36,7 +34,7 @@ export class AuthService {
     return bcrypt.compare(password, hashedPassword);
   }
 
-  async authenticate(loginDto: LoginDTO): Promise<IAuthenticate> {
+  async authenticate(loginDto: LoginDTO) {
     const user = await this.getUser(loginDto.email);
 
     if (!user) {
@@ -54,7 +52,7 @@ export class AuthService {
       throw new BadRequestException('Invalid password');
     }
 
-    const expiresIn = '1h';
+    const expiresIn = process.env.JWT_EXPIRY as string;
     const token = sign(
       { id: user.id, email: user.email, role: user.role },
       process.env.JWT_SECRET as string,

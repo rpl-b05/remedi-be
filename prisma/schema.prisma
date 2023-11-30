@@ -60,8 +60,8 @@ model User {
 }
 
 enum Role {
-  DOKTER
-  PASIEN
+  DOCTOR
+  PATIENT
 }
 
 model MedicalRecord {

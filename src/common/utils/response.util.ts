@@ -6,9 +6,9 @@ import { ResponseInterface } from './response.interface';
 export class ResponseUtil {
   response({ responseCode, message, status }: ResponseInterface, data?: any) {
     const responsePayload = {
-      message: message || 'Data retrieved successfully',
+      responseMessage: message || 'Data retrieved successfully',
       responseCode: responseCode || HttpStatus.OK,
-      status: status || 'SUCCESS',
+      responseStatus: status || 'SUCCESS',
       ...data,
     };
 

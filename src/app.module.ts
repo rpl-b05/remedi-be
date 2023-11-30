@@ -20,7 +20,7 @@ import { AuthGuard } from './auth/auth.guard';
     AuthModule,
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWR_SECRET,
+      secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: process.env.JWT_EXPIRY as string },
     }),
     CommonModule,

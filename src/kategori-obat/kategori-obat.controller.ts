@@ -10,6 +10,8 @@ import {
 import { KategoriObatService } from './kategori-obat.service';
 import { CreateKategoriObatDto } from './dto/create-kategori-obat.dto';
 import { ResponseUtil } from 'src/common/utils/response.util';
+import { allowedRole } from 'src/common/decorators/allowedRole.decorator';
+import { Role } from '@prisma/client';
 
 @Controller('kategori-obat')
 export class KategoriObatController {
@@ -18,6 +20,7 @@ export class KategoriObatController {
     private readonly responseUtil: ResponseUtil,
   ) {}
 
+  @allowedRole(Role.DOCTOR)
   @Post('')
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() createKategoriObatDto: CreateKategoriObatDto) {
@@ -32,6 +35,7 @@ export class KategoriObatController {
     );
   }
 
+  @allowedRole(Role.DOCTOR)
   @Get('')
   @HttpCode(HttpStatus.OK)
   async findAll(@Query('name') name: string) {

@@ -3,11 +3,11 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { LoginDTO } from './DTO/login.dto';
+import { LoginDTO } from './dto/login.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { sign } from 'jsonwebtoken';
-import { RegisterDTO } from './DTO/register.dto';
+import { RegisterDTO } from './dto/register.dto';
 import { Role } from '@prisma/client';
 
 @Injectable()

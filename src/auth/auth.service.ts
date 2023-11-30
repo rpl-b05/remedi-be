@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { LoginDTO } from './dto/login.dto';
 import { IAuthenticate } from './interface/user.interface';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -9,82 +13,75 @@ import { User } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
-    constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-    async getUser(email: string) {
-        return await this.prisma.user.findUnique({
-            where: {
-                email: email
-            }
-        })
+  async getUser(email: string) {
+    return await this.prisma.user.findUnique({
+      where: {
+        email: email,
+      },
+    });
+  }
+
+  async hashPassword(plainText: string): Promise<string> {
+    const salt = await bcrypt.genSalt();
+    const hashPassword = await bcrypt.hash(plainText, salt);
+    return hashPassword;
+  }
+
+  async comparePassword(
+    password: string,
+    hashedPassword: string,
+  ): Promise<boolean> {
+    return bcrypt.compare(password, hashedPassword);
+  }
+
+  async authenticate(loginDto: LoginDTO): Promise<IAuthenticate> {
+    const user = await this.getUser(loginDto.email);
+
+    if (!user) {
+      throw new NotFoundException(
+        `User with email ${loginDto.email} is not found`,
+      );
     }
 
-    async hashPassword(plainText: string): Promise<string> {
-        const salt = await bcrypt.genSalt();
-        const hashPassword = await bcrypt.hash(plainText, salt);
-        return hashPassword;
-      }
-    
-    async comparePassword(
-        password: string,
-        hashedPassword: string,
-      ): Promise<boolean> {
-        return bcrypt.compare(password, hashedPassword);
-      }
+    const isPasswordValid = await this.comparePassword(
+      loginDto.password,
+      user.password,
+    );
 
-    async authenticate(loginDto: LoginDTO): Promise<IAuthenticate> {
-        const user = await this.getUser(loginDto.email)
-
-        if (!user) {
-            throw new NotFoundException(
-                `User with email ${loginDto.email} is not found`,
-            )
-        }
-
-        const isPasswordValid = await this.comparePassword(
-            loginDto.password,
-            user.password
-        )
-
-        if (!isPasswordValid) {
-            throw new BadRequestException('Invalid password')
-        }
-
-        const expiresIn = '1h'
-        const token = sign(
-            { id: user.id, email: user.email, role: user.role},
-            "remedisukses",
-            { expiresIn }
-        )
-
-        return { user, token };
+    if (!isPasswordValid) {
+      throw new BadRequestException('Invalid password');
     }
 
-    async register(registerDto: RegisterDTO): Promise<User> {
-        const {
-            email,
-            name,
-            password,
-            role
-        } = registerDto
+    const expiresIn = '1h';
+    const token = sign(
+      { id: user.id, email: user.email, role: user.role },
+      process.env.JWT_SECRET as string,
+      { expiresIn },
+    );
 
-        const hashedPassword = await this.hashPassword(password)
+    return { user, token };
+  }
 
-        const user = await this.getUser(email)
+  async register(registerDto: RegisterDTO) {
+    const { email, name, password, role } = registerDto;
 
-        if (user) {
-            throw new BadRequestException('Email is used')
-        }
+    const hashedPassword = await this.hashPassword(password);
 
-        const newUser = await this.prisma.user.create({
-            data: {
-                email: email,
-                name: name,
-                password: hashedPassword,
-                role: role
-            }
-        })
+    const user = await this.getUser(email);
 
-        return newUser
+    if (user) {
+      throw new BadRequestException('Email is used');
     }
+
+    await this.prisma.user.create({
+      data: {
+        email: email,
+        name: name,
+        password: hashedPassword,
+        role: role,
+      },
+    });
+  }
 }

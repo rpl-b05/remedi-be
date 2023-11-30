@@ -54,9 +54,14 @@ model User {
   name          String
   password      String
   medialRecords MedicalRecord[]
-  role          String
+  role          Role
 
   @@map(name: "user")
+}
+
+enum Role {
+  DOCTOR
+  PATIENT
 }
 
 model MedicalRecord {

@@ -49,7 +49,7 @@ export class AuthGuard implements CanActivate {
   }
 
   private getRole(context: ExecutionContext) {
-    return this.reflector.getAllAndOverride<boolean>('Role', [
+    return this.reflector.getAllAndOverride<boolean>('AllowedRole', [
       context.getHandler(),
       context.getClass(),
     ]);

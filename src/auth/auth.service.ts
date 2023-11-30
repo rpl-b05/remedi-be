@@ -8,6 +8,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { sign } from 'jsonwebtoken';
 import { RegisterDTO } from './DTO/register.dto';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -69,8 +70,13 @@ export class AuthService {
 
     const user = await this.getUser(email);
 
-    if (user) {
+    if (!!user) {
       throw new BadRequestException('Email is used');
+    }
+
+    const capitalizeRole = role.toUpperCase();
+    if (capitalizeRole !== 'DOCTOR' && capitalizeRole !== 'PATIENT') {
+      throw new BadRequestException('Invalid role');
     }
 
     await this.prisma.user.create({
@@ -78,7 +84,7 @@ export class AuthService {
         email: email,
         name: name,
         password: hashedPassword,
-        role: role,
+        role: capitalizeRole === 'DOCTOR' ? Role.DOCTOR : Role.PATIENT,
       },
     });
   }

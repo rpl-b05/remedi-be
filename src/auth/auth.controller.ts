@@ -1,15 +1,11 @@
-import {
-  Body,
-  Controller,
-  HttpCode,
-  HttpStatus,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ResponseUtil } from 'src/common/utils/response.util';
 import { LoginDTO } from './DTO/login.dto';
 import { RegisterDTO } from './DTO/register.dto';
 import { IsPublic } from 'src/common/decorators/isPublic.decorator';
+import { AllowedRole } from 'src/common/decorators/role.decorator';
+import { Role } from '@prisma/client';
 
 @Controller('auth')
 export class AuthController {

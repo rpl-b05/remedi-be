@@ -9,6 +9,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { AuthModule } from './auth/auth.module';
 import { RecordModule } from './record/record.module';
+import { PenyakitModule } from './penyakit/penyakit.module';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { AuthGuard } from './auth/auth.guard';
@@ -26,6 +27,7 @@ import { AuthGuard } from './auth/auth.guard';
     ObatModule,
     KategoriObatModule,
     RecordModule,
+    PenyakitModule,
   ],
   controllers: [AppController],
   providers: [

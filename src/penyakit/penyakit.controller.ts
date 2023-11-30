@@ -11,6 +11,8 @@ import { PenyakitService } from './penyakit.service';
 import { FindAllPenyakitQuery } from './DTO/find-all-penyakit-query.DTO';
 import { ResponseUtil } from 'src/common/utils/response.util';
 import { CreatePenyakitDTO } from './DTO/create-penyakit.DTO';
+import { allowedRole } from 'src/common/decorators/allowedRole.decorator';
+import { Role } from '@prisma/client';
 
 @Controller('penyakit')
 export class PenyakitController {
@@ -19,6 +21,7 @@ export class PenyakitController {
     private readonly responseUtil: ResponseUtil,
   ) {}
 
+  @allowedRole(Role.DOCTOR)
   @Get()
   @HttpCode(HttpStatus.OK)
   async findAll(@Query() query: FindAllPenyakitQuery) {
@@ -26,6 +29,7 @@ export class PenyakitController {
     return this.responseUtil.response({}, { data: allPenyakit });
   }
 
+  @allowedRole(Role.DOCTOR)
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() body: CreatePenyakitDTO) {

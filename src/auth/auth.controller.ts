@@ -3,18 +3,13 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
-  Res,
-  Get,
   Post,
-  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ResponseUtil } from 'src/common/utils/response.util';
 import { LoginDTO } from './DTO/login.dto';
 import { RegisterDTO } from './DTO/register.dto';
-import { AuthGuard } from './auth.guard';
 import { IsPublic } from 'src/common/decorators/isPublic.decorator';
-import { Role } from 'src/common/decorators/role.decorator';
 
 @Controller('auth')
 export class AuthController {

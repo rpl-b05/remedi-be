@@ -4,8 +4,6 @@ import { ResponseUtil } from 'src/common/utils/response.util';
 import { LoginDTO } from './DTO/login.dto';
 import { RegisterDTO } from './DTO/register.dto';
 import { IsPublic } from 'src/common/decorators/isPublic.decorator';
-import { AllowedRole } from 'src/common/decorators/role.decorator';
-import { Role } from '@prisma/client';
 
 @Controller('auth')
 export class AuthController {

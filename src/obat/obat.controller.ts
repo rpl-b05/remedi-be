@@ -10,6 +10,8 @@ import {
 import { ObatService } from './obat.service';
 import { ResponseUtil } from 'src/common/utils/response.util';
 import { CreateObatDto } from './dto/create-obat.dto';
+import { allowedRole } from 'src/common/decorators/allowedRole.decorator';
+import { Role } from '@prisma/client';
 
 @Controller('obat')
 export class ObatController {
@@ -18,6 +20,7 @@ export class ObatController {
     private responseUtil: ResponseUtil,
   ) {}
 
+  @allowedRole(Role.DOCTOR)
   @Get()
   @HttpCode(HttpStatus.OK)
   async findAll(@Query('name') name: string) {
@@ -28,6 +31,7 @@ export class ObatController {
     );
   }
 
+  @allowedRole(Role.DOCTOR)
   @Get()
   @HttpCode(HttpStatus.OK)
   async findAllByCategory(@Query('category') category: string) {
@@ -38,6 +42,7 @@ export class ObatController {
     );
   }
 
+  @allowedRole(Role.DOCTOR)
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() request: CreateObatDto) {

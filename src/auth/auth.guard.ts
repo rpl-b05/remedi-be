@@ -20,9 +20,12 @@ export class AuthGuard implements CanActivate {
     }
 
     const token = authorization.split(' ')[1];
-    const { exp, role } = await this.jwtService.verifyAsync(token, {
+    const { exp, role, email, id } = await this.jwtService.verifyAsync(token, {
       secret: process.env.JWT_SECRET,
     });
+
+    const user = { email, id }
+    request.user = user
 
     if (this.isExpired(exp)) {
       return false;

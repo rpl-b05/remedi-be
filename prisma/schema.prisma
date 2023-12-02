@@ -65,16 +65,16 @@ enum Role {
 }
 
 model MedicalRecord {
-  id          Int          @id @default(autoincrement())
-  pasien      User         @relation(fields: [pasienId], references: [id])
+  id          Int           @id @default(autoincrement())
+  pasien      User          @relation(fields: [pasienId], references: [id])
   dokterId    Int
   pasienId    Int
-  isVerified  Boolean     
-  description String
+  isVerified  Boolean?      
+  description String?
   recordObat  RecordObat[]
-  penyakit    Penyakit     @relation(fields: [penyakitId], references: [id])
-  penyakitId  Int
-  createdAt   DateTime     @default(now())
+  penyakit    Penyakit?     @relation(fields: [penyakitId], references: [id])
+  penyakitId  Int?
+  createdAt   DateTime      @default(now())
 
   @@map(name: "medical_record")
 }

@@ -67,51 +67,62 @@ export class RecordController {
   // }
 
   @allowedRole(Role.DOCTOR)
-  @Get("/all-pasien?")
-  async getAllPasienWithMedRecs(@Query('email') email: string){
-    console.log(email)
-    const result = await this.recordService.getAllPasienWithMedRecs(email)
+  @Get('/all-pasien?')
+  async getAllPasienWithMedRecs(@Query('email') email: string) {
+    console.log(email);
+    const result = await this.recordService.getAllPasienWithMedRecs(email);
     return this.responseUtil.response(
-      { responseCode: HttpStatus.OK, message: "success" },
-      { result }
-    )
+      { responseCode: HttpStatus.OK, message: 'success' },
+      { result },
+    );
   }
 
   @allowedRole(Role.DOCTOR)
-  @Get("/pasien?")
-  async getPasienMedicalRecords(@Query('email') email: string){
-    const medicalRecords = await this.recordService.getPasienMedicalRecords(email)
+  @Get('/pasien?')
+  async getPasienMedicalRecords(@Query('email') email: string) {
+    const medicalRecords = await this.recordService.getPasienMedicalRecords(
+      email,
+    );
     return this.responseUtil.response(
-      { responseCode: HttpStatus.OK, message: "success get med records"},
-      { medicalRecords }
-    )
+      { responseCode: HttpStatus.OK, message: 'success get med records' },
+      { medicalRecords },
+    );
   }
 
   @allowedRole(Role.DOCTOR)
   @Post()
   async createMedicalRecord(
     @Body() createRecordDto: CreateMedicalRecordDTO,
-    @Req() request: any
+    @Req() request: any,
   ) {
-    const doctor = request.user.id
-    const pasien = createRecordDto.pasienEmail
-    const record = await this.recordService.createMedicalRecord(doctor, pasien)
+    const doctor = request.user.id;
+    const pasien = createRecordDto.pasienEmail;
+    const record = await this.recordService.createMedicalRecord(doctor, pasien);
     return this.responseUtil.response(
-      { responseCode: HttpStatus.CREATED, message: "Sukses membuat medical record baru"},
-      { record }
-    )
+      {
+        responseCode: HttpStatus.CREATED,
+        message: 'Sukses membuat medical record baru',
+      },
+      { record },
+    );
   }
 
   @allowedRole(Role.DOCTOR)
-  @Patch("/update/:id")
+  @Patch('/update/:id')
   async updateMedicalRecord(
     @Body() updateMedicalRecordDto: UpdateMedicalRecordDTO,
-    @Param('id', ParseIntPipe) recordId: number
+    @Param('id', ParseIntPipe) recordId: number,
   ) {
-    const record = await this.recordService.updateMedicalRecord(recordId, updateMedicalRecordDto)
+    const record = await this.recordService.updateMedicalRecord(
+      recordId,
+      updateMedicalRecordDto,
+    );
     return this.responseUtil.response(
-      { responseCode: HttpStatus.CREATED, message: `Sukses mengedit medical record ${recordId}`},
-      { record }
-    )
+      {
+        responseCode: HttpStatus.CREATED,
+        message: `Sukses mengedit medical record ${recordId}`,
+      },
+      { record },
+    );
   }
 }

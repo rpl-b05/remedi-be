@@ -31,12 +31,12 @@ export class RecordController {
   @Get('')
   async findByUser(@Query() query: GetMedicalRecordDto, @Req() request: any) {
     const { pasienId, sort } = query;
-    const medicalRecords = await this.recordService.findMedicalRecordsbyUser(
+    const records = await this.recordService.findMedicalRecordsbyUser(
       request.user.id,
       pasienId,
       sort,
     );
-    return this.responseUtil.response({}, { medicalRecords });
+    return this.responseUtil.response({}, { data: records });
   }
 
   @allowedRole(Role.PATIENT)
@@ -48,7 +48,7 @@ export class RecordController {
     @Body() verifyMedicalRecordDto: VerifyMedicalRecordDto,
     @Req() request: any,
   ) {
-    const medicalRecord = this.recordService.verifyRecord(
+    const record = this.recordService.verifyRecord(
       id,
       request.user.id,
       verifyMedicalRecordDto,
@@ -57,7 +57,7 @@ export class RecordController {
       {
         message: 'Medical Record sudah diupdate.',
       },
-      { medicalRecord },
+      { data: record },
     );
   }
   // @Get()

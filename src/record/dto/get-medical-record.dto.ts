@@ -1,14 +1,14 @@
-import { IsEnum, IsNumber, IsOptional } from 'class-validator';
-
+import { Type } from 'class-transformer';
+import { IsEnum, IsNumber, IsNumberString, IsOptional } from 'class-validator';
 export enum SortChoice {
   ASC = 'asc',
   DESC = 'desc',
 }
 
 export class GetMedicalRecordDto {
-  @IsNumber()
+  @IsNumberString()
   @IsOptional()
-  pasienId: number;
+  pasienId: string;
 
   @IsEnum(SortChoice)
   @IsOptional()

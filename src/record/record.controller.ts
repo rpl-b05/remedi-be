@@ -9,15 +9,15 @@ import {
   Post,
   Query,
   Req,
-  UseGuards,
 } from '@nestjs/common';
+import { allowedRole } from 'src/common/decorators/allowedRole.decorator';
 import { RecordService } from './record.service';
 import { ResponseUtil } from 'src/common/utils/response.util';
 import { VerifyMedicalRecordDto } from './dto/verify-medical-record.dto';
-import { allowedRole } from 'src/common/decorators/allowedRole.decorator';
-import { Role } from '@prisma/client';
 import { CreateMedicalRecordDTO } from './dto/create-medical-record.dto';
 import { UpdateMedicalRecordDTO } from './dto/update-medical-record-dto';
+import { Role } from '@prisma/client';
+import { GetMedicalRecordDto } from './dto/get-medical-record.dto';
 
 @Controller('record')
 export class RecordController {
@@ -26,13 +26,13 @@ export class RecordController {
     private responseUtil: ResponseUtil,
   ) {}
 
+  @allowedRole(Role.DOCTOR)
   @allowedRole(Role.PATIENT)
-  @Get()
-  async findByUser(
-    @Query('pasienId?', ParseIntPipe) pasienId: number,
-    @Query('sort?') sort?: 'asc' | 'desc',
-  ) {
+  @Get('')
+  async findByUser(@Query() query: GetMedicalRecordDto, @Req() request: any) {
+    const { pasienId, sort } = query;
     const medicalRecords = await this.recordService.findMedicalRecordsbyUser(
+      request.user.id,
       pasienId,
       sort,
     );

@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -7,22 +6,31 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { VerifyMedicalRecordDto } from './dto/verify-medical-record.dto';
 import { UpdateMedicalRecordDTO } from './dto/update-medical-record-dto';
+import { SortChoice } from './dto/get-medical-record.dto';
+import { Role, User } from '@prisma/client';
 @Injectable()
 export class RecordService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findMedicalRecordsbyUser(pasienId: number, sort?: 'desc' | 'asc') {
-    if (sort && sort != 'desc' && sort != 'asc') {
-      throw new BadRequestException('sort can only be desc or asc');
+  async findMedicalRecordsbyUser(
+    loggedInUser: User,
+    pasienId?: number,
+    sort?: SortChoice,
+  ) {
+    if (loggedInUser.role == Role.PATIENT) {
+      if (!!pasienId && loggedInUser.id != pasienId) {
+        throw new ForbiddenException();
+      }
+      pasienId = loggedInUser.id;
     }
     const data = await this.prisma.medicalRecord.findMany({
       orderBy: [
         {
-          createdAt: sort || 'desc',
+          createdAt: sort || SortChoice.DESC,
         },
       ],
       where: {
-        pasienId,
+        ...(pasienId ? { pasienId } : {}),
       },
     });
     return data;

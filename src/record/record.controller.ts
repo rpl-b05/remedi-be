@@ -9,6 +9,7 @@ import {
   Post,
   Query,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import { allowedRole } from 'src/common/decorators/allowedRole.decorator';
 import { RecordService } from './record.service';
@@ -18,6 +19,7 @@ import { CreateMedicalRecordDTO } from './dto/create-medical-record.dto';
 import { UpdateMedicalRecordDTO } from './dto/update-medical-record-dto';
 import { Role } from '@prisma/client';
 import { GetMedicalRecordDto } from './dto/get-medical-record.dto';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('record')
 export class RecordController {
@@ -26,14 +28,13 @@ export class RecordController {
     private responseUtil: ResponseUtil,
   ) {}
 
-  @allowedRole(Role.DOCTOR)
-  @allowedRole(Role.PATIENT)
+  @UseGuards(AuthGuard)
   @Get('')
   async findByUser(@Query() query: GetMedicalRecordDto, @Req() request: any) {
     const { pasienId, sort } = query;
     const records = await this.recordService.findMedicalRecordsbyUser(
-      request.user.id,
-      pasienId,
+      request.user,
+      parseInt(pasienId),
       sort,
     );
     return this.responseUtil.response({}, { data: records });
@@ -41,8 +42,6 @@ export class RecordController {
 
   @allowedRole(Role.PATIENT)
   @Patch('/:id')
-  // TODO :
-  // @UseGuards()
   async verify(
     @Param('id', ParseIntPipe) id: number,
     @Body() verifyMedicalRecordDto: VerifyMedicalRecordDto,
@@ -122,7 +121,7 @@ export class RecordController {
         responseCode: HttpStatus.CREATED,
         message: `Sukses mengedit medical record ${recordId}`,
       },
-      { record },
+      { data: record },
     );
   }
 }

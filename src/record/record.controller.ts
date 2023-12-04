@@ -11,13 +11,15 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { allowedRole } from 'src/common/decorators/allowedRole.decorator';
 import { RecordService } from './record.service';
 import { ResponseUtil } from 'src/common/utils/response.util';
 import { VerifyMedicalRecordDto } from './dto/verify-medical-record.dto';
-import { allowedRole } from 'src/common/decorators/allowedRole.decorator';
-import { Role } from '@prisma/client';
 import { CreateMedicalRecordDTO } from './dto/create-medical-record.dto';
 import { UpdateMedicalRecordDTO } from './dto/update-medical-record-dto';
+import { Role } from '@prisma/client';
+import { GetMedicalRecordDto } from './dto/get-medical-record.dto';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('record')
 export class RecordController {
@@ -26,29 +28,26 @@ export class RecordController {
     private responseUtil: ResponseUtil,
   ) {}
 
-  @allowedRole(Role.PATIENT)
-  @Get()
-  async findByUser(
-    @Query('pasienId?', ParseIntPipe) pasienId: number,
-    @Query('sort?') sort?: 'asc' | 'desc',
-  ) {
-    const medicalRecords = await this.recordService.findMedicalRecordsbyUser(
-      pasienId,
+  @UseGuards(AuthGuard)
+  @Get('')
+  async findByUser(@Query() query: GetMedicalRecordDto, @Req() request: any) {
+    const { pasienId, sort } = query;
+    const records = await this.recordService.findMedicalRecordsbyUser(
+      request.user,
+      parseInt(pasienId),
       sort,
     );
-    return this.responseUtil.response({}, { medicalRecords });
+    return this.responseUtil.response({}, { data: records });
   }
 
   @allowedRole(Role.PATIENT)
   @Patch('/:id')
-  // TODO :
-  // @UseGuards()
   async verify(
     @Param('id', ParseIntPipe) id: number,
     @Body() verifyMedicalRecordDto: VerifyMedicalRecordDto,
     @Req() request: any,
   ) {
-    const medicalRecord = this.recordService.verifyRecord(
+    const record = this.recordService.verifyRecord(
       id,
       request.user.id,
       verifyMedicalRecordDto,
@@ -57,7 +56,7 @@ export class RecordController {
       {
         message: 'Medical Record sudah diupdate.',
       },
-      { medicalRecord },
+      { data: record },
     );
   }
   // @Get()
@@ -67,51 +66,62 @@ export class RecordController {
   // }
 
   @allowedRole(Role.DOCTOR)
-  @Get("/all-pasien?")
-  async getAllPasienWithMedRecs(@Query('email') email: string){
-    console.log(email)
-    const result = await this.recordService.getAllPasienWithMedRecs(email)
+  @Get('/all-pasien?')
+  async getAllPasienWithMedRecs(@Query('email') email: string) {
+    console.log(email);
+    const result = await this.recordService.getAllPasienWithMedRecs(email);
     return this.responseUtil.response(
-      { responseCode: HttpStatus.OK, message: "success" },
-      { result }
-    )
+      { responseCode: HttpStatus.OK, message: 'success' },
+      { result },
+    );
   }
 
   @allowedRole(Role.DOCTOR)
-  @Get("/pasien?")
-  async getPasienMedicalRecords(@Query('email') email: string){
-    const medicalRecords = await this.recordService.getPasienMedicalRecords(email)
+  @Get('/pasien?')
+  async getPasienMedicalRecords(@Query('email') email: string) {
+    const medicalRecords = await this.recordService.getPasienMedicalRecords(
+      email,
+    );
     return this.responseUtil.response(
-      { responseCode: HttpStatus.OK, message: "success get med records"},
-      { medicalRecords }
-    )
+      { responseCode: HttpStatus.OK, message: 'success get med records' },
+      { medicalRecords },
+    );
   }
 
   @allowedRole(Role.DOCTOR)
   @Post()
   async createMedicalRecord(
     @Body() createRecordDto: CreateMedicalRecordDTO,
-    @Req() request: any
+    @Req() request: any,
   ) {
-    const doctor = request.user.id
-    const pasien = createRecordDto.pasienEmail
-    const record = await this.recordService.createMedicalRecord(doctor, pasien)
+    const doctor = request.user.id;
+    const pasien = createRecordDto.pasienEmail;
+    const record = await this.recordService.createMedicalRecord(doctor, pasien);
     return this.responseUtil.response(
-      { responseCode: HttpStatus.CREATED, message: "Sukses membuat medical record baru"},
-      { record }
-    )
+      {
+        responseCode: HttpStatus.CREATED,
+        message: 'Sukses membuat medical record baru',
+      },
+      { record },
+    );
   }
 
   @allowedRole(Role.DOCTOR)
-  @Patch("/update/:id")
+  @Patch('/update/:id')
   async updateMedicalRecord(
     @Body() updateMedicalRecordDto: UpdateMedicalRecordDTO,
-    @Param('id', ParseIntPipe) recordId: number
+    @Param('id', ParseIntPipe) recordId: number,
   ) {
-    const record = await this.recordService.updateMedicalRecord(recordId, updateMedicalRecordDto)
+    const record = await this.recordService.updateMedicalRecord(
+      recordId,
+      updateMedicalRecordDto,
+    );
     return this.responseUtil.response(
-      { responseCode: HttpStatus.CREATED, message: `Sukses mengedit medical record ${recordId}`},
-      { record }
-    )
+      {
+        responseCode: HttpStatus.CREATED,
+        message: `Sukses mengedit medical record ${recordId}`,
+      },
+      { data: record },
+    );
   }
 }

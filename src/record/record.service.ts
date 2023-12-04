@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -7,22 +6,31 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { VerifyMedicalRecordDto } from './dto/verify-medical-record.dto';
 import { UpdateMedicalRecordDTO } from './dto/update-medical-record-dto';
+import { SortChoice } from './dto/get-medical-record.dto';
+import { Role, User } from '@prisma/client';
 @Injectable()
 export class RecordService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findMedicalRecordsbyUser(pasienId: number, sort?: 'desc' | 'asc') {
-    if (sort && sort != 'desc' && sort != 'asc') {
-      throw new BadRequestException('sort can only be desc or asc');
+  async findMedicalRecordsbyUser(
+    loggedInUser: User,
+    pasienId?: number,
+    sort?: SortChoice,
+  ) {
+    if (loggedInUser.role == Role.PATIENT) {
+      if (!!pasienId && loggedInUser.id != pasienId) {
+        throw new ForbiddenException();
+      }
+      pasienId = loggedInUser.id;
     }
     const data = await this.prisma.medicalRecord.findMany({
       orderBy: [
         {
-          createdAt: sort || 'desc',
+          createdAt: sort || SortChoice.DESC,
         },
       ],
       where: {
-        pasienId,
+        ...(pasienId ? { pasienId } : {}),
       },
     });
     return data;
@@ -52,127 +60,132 @@ export class RecordService {
     });
   }
 
-  async getAllPasienWithMedRecs(query: string){
+  async getAllPasienWithMedRecs(query: string) {
     const listAllPasienId = await this.prisma.medicalRecord.findMany({
       where: {},
       distinct: ['pasienId'],
       select: {
-        pasienId: true
-      }
-    })
+        pasienId: true,
+      },
+    });
 
-    const listAllPasienEmail = []
-    for (let { pasienId } of listAllPasienId){
+    const listAllPasienEmail = [];
+    for (let { pasienId } of listAllPasienId) {
       const user = await this.prisma.user.findUnique({
         where: {
-          id: pasienId
-        }
-      })
-      const email = user?.email
-      listAllPasienEmail.push(email)
+          id: pasienId,
+        },
+      });
+      const email = user?.email;
+      listAllPasienEmail.push(email);
     }
 
-    if (query == ""){
-      return listAllPasienEmail
+    if (query == '') {
+      return listAllPasienEmail;
     } else {
-      const resultFiltered = []
-      for (let email of listAllPasienEmail){
+      const resultFiltered = [];
+      for (let email of listAllPasienEmail) {
         if (email?.startsWith(query)) {
-          resultFiltered.push(email)
+          resultFiltered.push(email);
         }
       }
-      return resultFiltered
+      return resultFiltered;
     }
   }
-  
+
   async getPasienByEmail(email: string) {
     const pasien = await this.prisma.user.findUnique({
       where: {
-        email: email
-      }
-    })
-    if (!pasien) throw new NotFoundException("Pasien tidak ditemukan")
-    return pasien
+        email: email,
+      },
+    });
+    if (!pasien) throw new NotFoundException('Pasien tidak ditemukan');
+    return pasien;
   }
 
-  async getPasienMedicalRecords(email: string){
-    const pasien = await this.getPasienByEmail(email)
-    const isExist = await this.isPasienWithMedicalRecordsExist(email)
-    if (!isExist){
-      throw new NotFoundException("Pasien belum punya medical record")
+  async getPasienMedicalRecords(email: string) {
+    const pasien = await this.getPasienByEmail(email);
+    const isExist = await this.isPasienWithMedicalRecordsExist(email);
+    if (!isExist) {
+      throw new NotFoundException('Pasien belum punya medical record');
     }
-    const pasienId = pasien.id
+    const pasienId = pasien.id;
     const records = await this.prisma.medicalRecord.findMany({
       where: {
-        pasienId: pasienId
+        pasienId: pasienId,
       },
       include: {
-        recordObat: true
-      }
-    })
-    return records
+        recordObat: true,
+      },
+    });
+    return records;
   }
 
   async isPasienWithMedicalRecordsExist(email: string) {
-    const listAllPasienEmail = await this.getAllPasienWithMedRecs("")
-    return listAllPasienEmail.includes(email)
+    const listAllPasienEmail = await this.getAllPasienWithMedRecs('');
+    return listAllPasienEmail.includes(email);
   }
 
   async createMedicalRecord(dokterId: number, pasienEmail: string) {
-    const pasien = await this.getPasienByEmail(pasienEmail)
-    const pasienId = pasien.id
+    const pasien = await this.getPasienByEmail(pasienEmail);
+    const pasienId = pasien.id;
 
     return await this.prisma.medicalRecord.create({
       data: {
         pasienId: pasienId,
-        dokterId: dokterId
-      }
-    })
+        dokterId: dokterId,
+      },
+    });
   }
 
-  async updateMedicalRecord(recordId: number, updateDto: UpdateMedicalRecordDTO) {
+  async updateMedicalRecord(
+    recordId: number,
+    updateDto: UpdateMedicalRecordDTO,
+  ) {
     const { description, penyakitId, daftarRecordObat } = updateDto;
-    
+
     const record = await this.prisma.medicalRecord.findUnique({
       where: {
-        id: recordId
-      }
-    })
+        id: recordId,
+      },
+    });
 
-    if (!record) throw new NotFoundException("Record is not found")
+    if (!record) throw new NotFoundException('Record is not found');
 
-    console.log(record.isVerified)
-    if (!record.isVerified){
-      throw new NotFoundException("You can't update record because it is not verified")
-    } 
+    console.log(record.isVerified);
+    if (!record.isVerified) {
+      throw new NotFoundException(
+        "You can't update record because it is not verified",
+      );
+    }
 
     await this.prisma.medicalRecord.update({
       where: {
-        id: recordId
+        id: recordId,
       },
       data: {
         description: description,
-        penyakitId: penyakitId
-      }
-    })
+        penyakitId: penyakitId,
+      },
+    });
 
     for (let recordObat of daftarRecordObat) {
       await this.prisma.recordObat.create({
         data: {
           recordId: recordId,
           obatId: recordObat.obatId,
-          dosis: recordObat.dosis
-        }
-      })
+          dosis: recordObat.dosis,
+        },
+      });
     }
 
     return await this.prisma.medicalRecord.findUnique({
       where: {
-        id: recordId
+        id: recordId,
       },
       include: {
-        recordObat: true
-      }
-    })
+        recordObat: true,
+      },
+    });
   }
 }

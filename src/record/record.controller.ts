@@ -111,10 +111,13 @@ export class RecordController {
   async updateMedicalRecord(
     @Body() updateMedicalRecordDto: UpdateMedicalRecordDTO,
     @Param('id', ParseIntPipe) recordId: number,
+    @Req() request: any
   ) {
+    const dokterId = request.user.id
     const record = await this.recordService.updateMedicalRecord(
       recordId,
       updateMedicalRecordDto,
+      dokterId
     );
     return this.responseUtil.response(
       {

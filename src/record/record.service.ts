@@ -141,6 +141,7 @@ export class RecordService {
   async updateMedicalRecord(
     recordId: number,
     updateDto: UpdateMedicalRecordDTO,
+    dokterId: number
   ) {
     const { description, penyakitId, daftarRecordObat } = updateDto;
 
@@ -150,9 +151,12 @@ export class RecordService {
       },
     });
 
+    if (record?.dokterId != dokterId) {
+      throw new ForbiddenException("Hanya dokter yang membuat medical record yang dapat mengedit")
+    }
+
     if (!record) throw new NotFoundException('Record is not found');
 
-    console.log(record.isVerified);
     if (!record.isVerified) {
       throw new NotFoundException(
         "You can't update record because it is not verified",

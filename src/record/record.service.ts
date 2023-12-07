@@ -93,6 +93,16 @@ export class RecordService {
     }
   }
 
+  async getEmailById(id: number) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: id
+      }
+    })
+    if (!user) throw new NotFoundException('User tidak ditemukan');
+    return user.email;
+  }
+
   async getPasienByEmail(email: string) {
     const pasien = await this.prisma.user.findUnique({
       where: {
@@ -115,10 +125,33 @@ export class RecordService {
         pasienId: pasienId,
       },
       include: {
-        recordObat: true,
+        recordObat: {
+          include: {
+            obat: {
+              include: {
+                kategori: true
+              }
+            }
+          }
+        },
+        penyakit: true,
       },
     });
-    return records;
+    const modifiedRecords = await Promise.all(records.map(async record => {
+      const dokterEmail = await this.getEmailById(record.dokterId)
+      return {
+        ...record,
+        penyakit: record.penyakit ? record.penyakit.name: null,
+        resepObat: record.recordObat.map(recordObat => ({
+          dosis: recordObat.dosis,
+          obat: recordObat.obat.name,
+          kategoriObatName: recordObat.obat.kategori.name
+        })),
+        dokterEmail: dokterEmail
+      }
+    }))
+    const removedUnusedFields = modifiedRecords.map(({ penyakitId, recordObat, dokterId, ...rest }) => rest);
+    return removedUnusedFields
   }
 
   async isPasienWithMedicalRecordsExist(email: string) {
@@ -189,6 +222,7 @@ export class RecordService {
       },
       include: {
         recordObat: true,
+        pasien: true
       },
     });
   }

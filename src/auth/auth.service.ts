@@ -60,7 +60,14 @@ export class AuthService {
       { expiresIn },
     );
 
-    return { user, token };
+    const userWithoutPassword = {
+      'id': user.id,
+      'email': user.email,
+      'name': user.name,
+      'role': user.role
+    }
+
+    return { userWithoutPassword, token };
   }
 
   async register(registerDto: RegisterDTO) {

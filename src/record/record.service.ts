@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -161,6 +162,9 @@ export class RecordService {
 
   async createMedicalRecord(dokterId: number, pasienEmail: string) {
     const pasien = await this.getPasienByEmail(pasienEmail);
+
+    if (pasien.role == Role.DOCTOR) throw new BadRequestException("User tidak terdaftar sebagai pasien");
+    
     const pasienId = pasien.id;
 
     return await this.prisma.medicalRecord.create({

@@ -53,7 +53,8 @@ model User {
   email         String          @unique
   name          String
   password      String
-  medialRecords MedicalRecord[]
+  medicalRecordsDokter MedicalRecord[] @relation("DokterMedicalRecord")
+  medicalRecordsPasien MedicalRecord[] @relation("PasienMedicalRecord")
   role          Role
 
   @@map(name: "user")
@@ -66,7 +67,8 @@ enum Role {
 
 model MedicalRecord {
   id          Int           @id @default(autoincrement())
-  pasien      User          @relation(fields: [pasienId], references: [id])
+  pasien      User          @relation("PasienMedicalRecord",fields: [pasienId], references: [id])
+  dokter      User          @relation("DokterMedicalRecord",fields: [dokterId], references: [id])
   dokterId    Int
   pasienId    Int
   isVerified  Boolean?      

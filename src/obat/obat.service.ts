@@ -14,7 +14,9 @@ export class ObatService {
           mode: 'insensitive',
         },
       },
-      include: {
+      select: {
+        id: true,
+        name: true,
         kategori: true,
       },
     });
@@ -34,7 +36,9 @@ export class ObatService {
       where: {
         kategoriObatId: kategoriObat?.id,
       },
-      include: {
+      select: {
+        id: true,
+        name: true,
         kategori: true,
       },
     });

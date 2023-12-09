@@ -14,6 +14,9 @@ export class ObatService {
           mode: 'insensitive',
         },
       },
+      include: {
+        kategori: true,
+      },
     });
     return obat;
   }
@@ -30,6 +33,9 @@ export class ObatService {
     const obat = await this.prisma.obat.findMany({
       where: {
         kategoriObatId: kategoriObat?.id,
+      },
+      include: {
+        kategori: true,
       },
     });
     return obat;

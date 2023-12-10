@@ -29,6 +29,7 @@ export class ObatController {
   ) {
     let res;
     if (name == undefined && category != undefined) {
+      console.log('here');
       res = await this.obatService.findAllByCategory(category);
     } else {
       res = await this.obatService.findAll(name);

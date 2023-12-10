@@ -27,11 +27,15 @@ export class ObatService {
     const kategoriObat = await this.prisma.kategoriObat.findFirst({
       where: {
         name: {
-          equals: category,
+          contains: category,
           mode: 'insensitive',
         },
       },
     });
+
+    if (kategoriObat == null) {
+      return [];
+    }
     const obat = await this.prisma.obat.findMany({
       where: {
         kategoriObatId: kategoriObat?.id,

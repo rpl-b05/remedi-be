@@ -14,7 +14,7 @@ model Obat {
   id             Int          @id @default(autoincrement())
   name           String
   kategori       KategoriObat @relation(fields: [kategoriObatId], references: [id])
-  kategoriObatId Int          @unique
+  kategoriObatId Int          
   recordObat     RecordObat[]
 
   @@map(name: "obat")

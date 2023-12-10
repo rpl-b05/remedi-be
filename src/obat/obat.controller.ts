@@ -23,19 +23,17 @@ export class ObatController {
   @allowedRole(Role.DOCTOR)
   @Get()
   @HttpCode(HttpStatus.OK)
-  async findAll(@Query('name') name: string) {
-    const res = await this.obatService.findAll(name);
-    return this.responseUtil.response(
-      { message: 'Obat successfully retrieved' },
-      { data: res },
-    );
-  }
+  async findAll(
+    @Query('name') name: string,
+    @Query('category') category: string,
+  ) {
+    let res;
+    if (name == undefined && category != undefined) {
+      res = await this.obatService.findAllByCategory(category);
+    } else {
+      res = await this.obatService.findAll(name);
+    }
 
-  @allowedRole(Role.DOCTOR)
-  @Get()
-  @HttpCode(HttpStatus.OK)
-  async findAllByCategory(@Query('category') category: string) {
-    const res = await this.obatService.findAllByCategory(category);
     return this.responseUtil.response(
       { message: 'Obat successfully retrieved' },
       { data: res },

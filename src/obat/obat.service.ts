@@ -32,6 +32,7 @@ export class ObatService {
         },
       },
     });
+    console.log('aa');
     const obat = await this.prisma.obat.findMany({
       where: {
         kategoriObatId: kategoriObat?.id,

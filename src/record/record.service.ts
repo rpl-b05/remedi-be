@@ -39,7 +39,15 @@ export class RecordService {
             name: true,
           },
         },
-        recordObat: true,
+        recordObat: {
+          include: {
+            obat: {
+              include: {
+                kategori: true,
+              },
+            },
+          },
+        },
       },
     });
     return data;

@@ -83,7 +83,7 @@ export class RecordController {
       email,
     );
     return this.responseUtil.response(
-      { responseCode: HttpStatus.OK, message: 'success get med records' },
+      { responseCode: HttpStatus.OK, message: 'Sukses mengambil medical records' },
       { medicalRecords },
     );
   }

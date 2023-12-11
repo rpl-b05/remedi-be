@@ -207,11 +207,11 @@ export class RecordService {
       );
     }
 
-    if (!record) throw new NotFoundException('Record is not found');
+    if (!record) throw new NotFoundException('Record tidak ditemukan');
 
     if (!record.isVerified) {
       throw new NotFoundException(
-        "You can't update record because it is not verified",
+        "Anda tidak bisa mengupdate record karena belum diverifikasi",
       );
     }
 

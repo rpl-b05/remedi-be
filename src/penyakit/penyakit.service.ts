@@ -30,14 +30,14 @@ export class PenyakitService {
     const { name, category } = query;
     const data = await this.prisma.penyakit.findMany({
       where: {
-        name: {
+        ...(!!name && name !== '' && {name: {
           contains: name,
           mode: 'insensitive',
-        },
-        category: {
+        }}),
+        ...(!!category && category !== '' && {category: {
           contains: category,
           mode: 'insensitive',
-        },
+        }}),
       },
     });
 
